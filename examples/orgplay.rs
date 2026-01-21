@@ -2,7 +2,10 @@
 
 use {
     organyacat::{Interpolation, Player},
-    std::{error::Error, io::Write},
+    std::{
+        error::Error,
+        io::{IsTerminal, Write},
+    },
 };
 
 fn main() -> Result<(), Box<dyn Error>> {
@@ -16,6 +19,9 @@ fn main() -> Result<(), Box<dyn Error>> {
     player.load_song_file(org_path.as_ref())?;
 
     let mut writer = std::io::stdout().lock();
+    if writer.is_terminal() {
+        return Err("Pipe me to 44 Khz 32 bit float stereo audio sink".into());
+    }
 
     loop {
         player.write_next(&mut buffer, Interpolation::Lagrange);
