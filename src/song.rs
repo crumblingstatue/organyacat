@@ -3,28 +3,49 @@ use {
     std::path::Path,
 };
 
+/// An event that happens in the song
+///
+/// Some properties are optional. If their value is [`PROPERTY_UNUSED`], they are ignored.
 #[derive(Copy, Clone, Default)]
-pub(crate) struct Event {
-    pub(crate) position: u32,
-    pub(crate) pitch: u8,
-    pub(crate) length: u8,
-    pub(crate) volume: u8,
-    pub(crate) pan: u8,
+pub struct Event {
+    /// When in the song this event happens
+    pub position: u32,
+    /// The pitch of the note to play
+    pub pitch: u8,
+    /// Length of the note to play
+    pub length: u8,
+    /// Volume change
+    pub volume: u8,
+    /// Pan change
+    pub pan: u8,
 }
 
+/// A channel that plays an independent stream of audio that will be mixed together
+/// with other channels to produce the final output.
+///
+/// There are 8 melody channels, and 8 drum channels.
 #[derive(Default)]
-pub(crate) struct Channel {
-    pub(crate) instrument: u8,
+pub struct Channel {
+    /// The index of the instrument in the instrument bank
+    ///
+    /// Wave and melody channels have separate instrument banks.
+    pub instrument: u8,
     pub(crate) finetune: u16,
     pub(crate) pizzicato: bool,
-    pub(crate) events: Vec<Event>,
+    /// The list of events for this channel
+    pub events: Vec<Event>,
 }
 
-pub(crate) struct Song {
-    pub(crate) tempo_ms: u16,
-    pub(crate) repeat_start: u32,
-    pub(crate) repeat_end: u32,
-    pub(crate) channels: [Channel; 16],
+/// An Organya song
+pub struct Song {
+    /// Tempo of the song
+    pub tempo_ms: u16,
+    /// The point at which the song starts repeating
+    pub repeat_start: u32,
+    /// The point at which the song ends
+    pub repeat_end: u32,
+    /// The 16 channels of the song. There are 8 melody, and 8 drum channels.
+    pub channels: [Channel; 16],
 }
 
 impl Default for Song {
@@ -58,7 +79,12 @@ impl Default for Song {
 }
 
 impl Song {
-    pub(crate) fn read(&mut self, data: &[u8]) -> Result<(), OrgError> {
+    /// Read the song from raw bytes
+    ///
+    /// # Panics
+    ///
+    /// - May panic on I/O errors
+    pub fn read(&mut self, data: &[u8]) -> Result<(), OrgError> {
         if data.len() < 114 {
             return Err(OrgError::Malformed);
         }

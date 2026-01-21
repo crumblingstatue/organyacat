@@ -13,13 +13,17 @@
     clippy::missing_const_for_fn,
     clippy::suboptimal_flops
 )]
+#![allow(clippy::missing_errors_doc)]
 
 mod player;
 mod read_cursor;
 mod song;
 mod sound;
 
-pub use player::Player;
+pub use {
+    player::Player,
+    song::{Channel, Event, Song},
+};
 
 /// How to interpolate samples
 #[derive(Clone, Copy, Default)]
@@ -57,4 +61,5 @@ impl std::fmt::Display for OrgError {
 
 impl std::error::Error for OrgError {}
 
-const PROPERTY_UNUSED: u8 = 0xFF;
+/// If a property (volume, pan, etc.) has this value, it is ignored
+pub const PROPERTY_UNUSED: u8 = 0xFF;
