@@ -46,6 +46,10 @@ pub struct Song {
     pub repeat_end: u32,
     /// The 16 channels of the song. There are 8 melody, and 8 drum channels.
     pub channels: [Channel; 16],
+    /// Beats per measure
+    pub beats_per_measure: u8,
+    /// Steps per beat
+    pub steps_per_beat: u8,
 }
 
 impl Default for Song {
@@ -55,6 +59,8 @@ impl Default for Song {
             repeat_start: 0,
             repeat_end: 1600,
             channels: Default::default(),
+            beats_per_measure: 1,
+            steps_per_beat: 1,
         };
         let ([lo, hi], []) = this.channels.as_chunks_mut::<8>() else {
             unreachable!()
@@ -97,8 +103,8 @@ impl Song {
             return Err(OrgError::Malformed);
         }
         self.tempo_ms = read.next_u16_le().unwrap();
-        let _beats = read.next_u8().unwrap();
-        let _steps = read.next_u8().unwrap();
+        self.beats_per_measure = read.next_u8().unwrap();
+        self.steps_per_beat = read.next_u8().unwrap();
         self.repeat_start = read.next_u32_le().unwrap();
         self.repeat_end = read.next_u32_le().unwrap();
         for (i, ch) in self.channels.iter_mut().enumerate() {
